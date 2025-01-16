@@ -1,0 +1,8 @@
+<div class="list">
+  <h3 class="list-title">{{ title }}</h3>
+  <div class="card-container">
+    <tr-card *ngFor="let card of cards" [title]="card.title"></tr-card>
+  </div>
+  <button class="add-card-button">+ Додати картку</button>
+</div>
+

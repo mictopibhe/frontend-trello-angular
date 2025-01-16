@@ -1,0 +1,34 @@
+
+
+h1 {
+  text-align: center;
+}
+
+.boards-container {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 50px;
+  align-items: center;
+}
+
+.board {
+  position: relative;
+  text-align: center;
+  min-height: 150px;
+  border: 1px solid #000000;
+  border-radius: 20px;
+}
+
+.board::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--board-color);
+  opacity: 0.2;
+  z-index: -1;
+  border-radius: 20px;
+}

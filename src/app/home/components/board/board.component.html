@@ -1,0 +1,5 @@
+<h1>{{board.title}}</h1>
+<div class="board">
+  <tr-list *ngFor="let list of board.lists" [title]="list.title" [cards]="list.cards"></tr-list>
+  <button class="add-list-button"><p>+ Додати список</p></button>
+</div>
