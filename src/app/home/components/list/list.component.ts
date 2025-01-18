@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import {ICard} from '../../../core/interfaces/icard.interface';
+import {Card} from '../../../core/interfaces/card.interface';
 import {NgForOf} from '@angular/common';
 import {CardComponent} from '../card/card.component';
 
@@ -15,5 +15,5 @@ import {CardComponent} from '../card/card.component';
 })
 export class ListComponent {
   @Input() title!: string;
-  @Input() cards!: ICard[];
+  @Input() cards!: Card[];
 }

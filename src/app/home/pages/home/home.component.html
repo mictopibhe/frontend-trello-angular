@@ -1,12 +1,15 @@
 <h1>Мої дошки</h1>
 <div class="boards-container">
-  <div
-    class="board"
-    *ngFor="let board of boards"
-    [style.--board-color]="board.color">
-    <h3>{{ board.title }}</h3>
-  </div>
+  @for (board of boards; track board.id) {
+    <a [routerLink]="['/board', board.id]">
+      <div class="board"
+           [style.--board-color]="board.color">
+        <h3 class="board-title">{{ board.title }}</h3>
+      </div>
+    </a>
+  }
   <button class="add-board-button board">
     <p>+ Створити дошку</p>
   </button>
 </div>
+
