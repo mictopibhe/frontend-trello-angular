@@ -1,21 +1,51 @@
-import {ChangeDetectionStrategy, Component} from '@angular/core';
-import {Boards} from '../../../core/interfaces/boards.interface';
-import {RouterLink} from '@angular/router';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {Board} from '../../../core/interfaces/board.interface';
+import {ActivatedRoute, RouterLink} from '@angular/router';
+import {InputFormComponent} from '../../components/input-form/input-form.component';
+import {BoardService} from '../../services/board.service';
+import {switchMap} from 'rxjs';
 
 @Component({
   selector: 'tr-home',
   imports: [
-    RouterLink
+    RouterLink,
+    InputFormComponent,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HomeComponent {
-  boards: Boards[] = [
-    {id: 1, title: "закупи в кишенці", color:"#1f4ce0"},
-    {id: 2, title: "підготовка до весілля", color:"#1f4ce0"},
-    {id: 3, title: "розробка ммо рпг гри", color:"#e2ac4a"},
-    {id: 4, title: "курс по кунілінгусу", color:"#e2ac4a"}
-  ];
+export class HomeComponent implements OnInit {
+  boards: Board[] = [];
+  isModalOpen: boolean = false;
+
+  constructor(
+    private route: ActivatedRoute,
+    private boardService: BoardService,
+    private changeDetector: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
+    this.route.data.subscribe((data) => {
+      this.boards = data['boards'];
+    });
+  }
+
+  createBoard(title: string) {
+    this.boardService.createBoard(title).pipe(
+      switchMap(() => this.boardService.getBoards())
+    ).subscribe(boards => {
+      this.boards = boards;
+      this.isModalOpen = false;
+      this.changeDetector.detectChanges();
+    });
+  }
+
+  openModal() {
+    this.isModalOpen = true;
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
+  }
 }

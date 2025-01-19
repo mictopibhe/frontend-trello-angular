@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {NgForOf} from '@angular/common';
 import {ListComponent} from '../../components/list/list.component';
-import {Board} from '../../../core/interfaces/board.interface';
+import {BoardDetails} from '../../../core/interfaces/boardDetails.interface';
 import {ActivatedRoute} from '@angular/router';
 
 @Component({
@@ -15,7 +15,7 @@ import {ActivatedRoute} from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BoardComponent implements OnInit {
-  board?: Board;
+  board!: BoardDetails;
 
   constructor(private route: ActivatedRoute) {
   }

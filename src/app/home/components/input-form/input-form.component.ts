@@ -1,0 +1,30 @@
+import {ChangeDetectionStrategy, Component, EventEmitter, Output} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {NgIf} from '@angular/common';
+import {Subject} from 'rxjs';
+
+@Component({
+  selector: 'tr-input-form',
+  imports: [
+    FormsModule,
+    NgIf
+  ],
+  templateUrl: './input-form.component.html',
+  styleUrl: './input-form.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class InputFormComponent {
+  @Output() close = new EventEmitter<void>();
+  @Output() inputData = new EventEmitter<string>();
+  inputValue: string = '';
+
+  onClose() {
+    this.close.emit();
+  }
+
+  onSubmit() {
+    if (this.inputValue.trim()) {
+      this.inputData.emit(this.inputValue);
+    }
+  }
+}

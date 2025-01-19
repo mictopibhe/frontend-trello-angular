@@ -1,15 +1,25 @@
-<h1>Мої дошки</h1>
-<div class="boards-container">
-  @for (board of boards; track board.id) {
-    <a [routerLink]="['/board', board.id]">
-      <div class="board"
-           [style.--board-color]="board.color">
-        <h3 class="board-title">{{ board.title }}</h3>
-      </div>
-    </a>
+@if (isModalOpen) {
+  <div class="overlay"></div>
+}
+<div class="home-container">
+  <h1>Мої дошки</h1>
+  <div class="boards-container">
+    @for (board of boards; track board.id) {
+      <a [routerLink]="['/board', board.id]">
+        <div class="board"
+             [style.--board-color]="board.custom.backgroundColor">
+          <h3 class="board-title">{{ board.title }}</h3>
+        </div>
+      </a>
+    }
+    <button class="board" (click)="openModal()">+ Створити дошку</button>
+  </div>
+
+  @if (isModalOpen){
+    <tr-input-form
+      (close)="closeModal()"
+      (inputData)="createBoard($event)"></tr-input-form>
   }
-  <button class="add-board-button board">
-    <p>+ Створити дошку</p>
-  </button>
 </div>
+
 
