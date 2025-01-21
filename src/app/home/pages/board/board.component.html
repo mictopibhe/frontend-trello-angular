@@ -1,5 +1,48 @@
-<h1>{{board.title}}</h1>
+@if (isModalOpen) {
+  <div class="overlay"></div>
+}
+<div class="header">
+  <a class="header-link" href="/">< Home</a>
+  <div class="header-title">
+    @if (!isChanging) {
+      <h1 (click)="isChanging=true">{{ board.title }}</h1>
+    } @else {
+      <input type="text" class="board-title-input" id="title"
+             required
+             minlength="2"
+             maxlength="25"
+             pattern="^(?!\s*$)[0-9a-zA-Zа-яА-ЯіІїЇєЄ.,\-_'! ]+$"
+             [(ngModel)]="inputValue"
+             name="title"
+             #title="ngModel"
+             (keydown.enter)="updateBoard()"
+             (blur)="updateBoard()"/>
+<!--можна ентером відправляти невалідні дані. Як пофіксити? перевіряти ще в методі?-->
+      <div [hidden]="title.valid || title.pristine"
+           class="alert">
+        <div *ngIf="title.hasError('required')">
+          Title is required.
+        </div>
+        <div *ngIf="title.hasError('minlength')">
+          Title must be at least 2 characters long.
+        </div>
+        <div *ngIf="title.hasError('pattern')">
+          Title can only contain letters, numbers, spaces, and specific characters (., -_'!).
+        </div>
+      </div>
+    }
+  </div>
+  <button class="delete-btn" (click)="removeBoard()" >Delete board</button>
+</div>
+
 <div class="board">
   <tr-list *ngFor="let list of board.lists" [title]="list.title" [cards]="list.cards"></tr-list>
-  <button class="add-list-button"><p>+ Додати список</p></button>
+  <button class="add-list-button" (click)="openModal()"><p>+ Додати список</p></button>
 </div>
+
+@if (isModalOpen){
+  <tr-input-form
+    [entityType]="'list'"
+    (close)="closeModal()"
+    (inputData)="createList($event)"></tr-input-form>
+}

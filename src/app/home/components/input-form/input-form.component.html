@@ -1,7 +1,7 @@
 <form (ngSubmit)="onSubmit()" #inputForm="ngForm">
   <div class="form-content">
     <input type="text" class="board-title-input" id="title"
-           placeholder="Enter board title"
+           [placeholder]="'Enter ' + entityType + ' title'"
            required
            minlength="2"
            maxlength="25"
@@ -12,13 +12,19 @@
     <div class="close-btn" (click)="onClose()"></div>
     <div [hidden]="title.valid || title.pristine"
          class="alert alert-danger">
-      <div *ngIf="title.hasError('required')">Title is required.</div>
-      <div *ngIf="title.hasError('minlength')">Title must be at least 2 characters long.</div>
-      <div *ngIf="title.hasError('pattern')">Title can only contain letters, numbers, spaces, and specific characters (., -_'!).</div>
+      <div *ngIf="title.hasError('required')">
+        {{ entityType | titlecase }} title is required.
+      </div>
+      <div *ngIf="title.hasError('minlength')">
+        {{ entityType | titlecase }} title must be at least 2 characters long.
+      </div>
+      <div *ngIf="title.hasError('pattern')">
+        {{ entityType | titlecase }} title can only contain letters, numbers, spaces, and specific characters (., -_'!).
+      </div>
     </div>
   </div>
   <div class="modal-action">
-    <button type="submit" class="btn btn-success" [disabled]="!inputForm.form.valid">Create Board</button>
+    <button type="submit" class="btn btn-success" [disabled]="!inputForm.form.valid">Create {{entityType}}</button>
   </div>
 </form>
 

@@ -1,19 +1,21 @@
-import {ChangeDetectionStrategy, Component, EventEmitter, Output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {NgIf} from '@angular/common';
+import {NgIf, TitleCasePipe} from '@angular/common';
 import {Subject} from 'rxjs';
 
 @Component({
   selector: 'tr-input-form',
   imports: [
     FormsModule,
-    NgIf
+    NgIf,
+    TitleCasePipe
   ],
   templateUrl: './input-form.component.html',
   styleUrl: './input-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InputFormComponent {
+  @Input() entityType: string = 'board';
   @Output() close = new EventEmitter<void>();
   @Output() inputData = new EventEmitter<string>();
   inputValue: string = '';
