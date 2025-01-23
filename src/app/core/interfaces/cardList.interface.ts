@@ -1,7 +1,7 @@
 import {Card} from './card.interface';
 
 export interface CardList {
-  id: number;
+  id: string;
   title: string;
   cards: Card[];
 }

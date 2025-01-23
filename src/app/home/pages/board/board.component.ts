@@ -6,16 +6,17 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {FormsModule} from '@angular/forms';
 import {BoardService} from '../../services/board.service';
 import {BoardDetailsService} from '../../services/board-details.service';
-import {InputFormComponent} from '../../components/input-form/input-form.component';
+import {ModalInputComponent} from '../../components/modal-input/modal-input.component';
+import {ListService} from '../../services/list.service';
+import {TitleInputComponent} from '../../components/title-input/title-input.component';
 
 @Component({
   selector: 'tr-board',
   imports: [
-    NgForOf,
     ListComponent,
     FormsModule,
-    NgIf,
-    InputFormComponent
+    ModalInputComponent,
+    TitleInputComponent
   ],
   templateUrl: './board.component.html',
   styleUrl: './board.component.scss',
@@ -24,8 +25,8 @@ import {InputFormComponent} from '../../components/input-form/input-form.compone
 export class BoardComponent implements OnInit {
   board!: BoardDetails;
   boardId?: string | null;
-  inputValue: string = '';
-  isChanging: boolean = false;
+  currentTitle: string = '';
+  isEditing: boolean = false;
   isModalOpen: boolean = false;
 
   constructor(private route: ActivatedRoute,
@@ -33,12 +34,13 @@ export class BoardComponent implements OnInit {
               private boardDetailsService: BoardDetailsService,
               private router: Router,
               private changeDetector: ChangeDetectorRef,
+              private listService: ListService
   ) {}
 
   ngOnInit(): void {
     this.route.data.subscribe(({board}) => this.board = board);
     this.boardId = this.route.snapshot.paramMap.get('id');
-    this.inputValue = this.board.title;
+    this.currentTitle = this.board.title;
   }
 
   removeBoard() {
@@ -50,26 +52,35 @@ export class BoardComponent implements OnInit {
   }
 
   updateBoard() {
-    if (this.boardId && (this.inputValue && this.inputValue !== this.board.title)) {
-      this.boardService.updateBoard(this.inputValue, this.boardId).subscribe(() => {
+    if (this.boardId && (this.currentTitle && this.currentTitle !== this.board.title)) {
+      this.boardService.updateBoard(this.currentTitle, this.boardId).subscribe(() => {
         if (this.boardId) {
           this.fetchBoard(this.boardId);
         }
       });
+    } else {
+      this.isEditing = false;
     }
   }
 
   fetchBoard(boardId: string) {
     this.boardDetailsService.getBoardDetails(boardId).subscribe((bord) => {
-      this.isChanging = false;
       this.board = bord;
       this.changeDetector.detectChanges();
+      this.isEditing = false;
     });
   }
 
   createList(listTitle: string) {
     this.closeModal();
-
+    if (this.boardId) {
+      this.listService.createList(this.boardId, listTitle, this.board.lists.length - 1)
+        .subscribe(() => {
+          if (this.boardId) {
+            this.fetchBoard(this.boardId);
+          }
+        });
+    }
   }
 
   openModal() {

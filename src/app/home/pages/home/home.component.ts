@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {Board} from '../../../core/interfaces/board.interface';
 import {ActivatedRoute, RouterLink} from '@angular/router';
-import {InputFormComponent} from '../../components/input-form/input-form.component';
+import {ModalInputComponent} from '../../components/modal-input/modal-input.component';
 import {BoardService} from '../../services/board.service';
 import {switchMap} from 'rxjs';
 
@@ -9,7 +9,7 @@ import {switchMap} from 'rxjs';
   selector: 'tr-home',
   imports: [
     RouterLink,
-    InputFormComponent,
+    ModalInputComponent,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',

@@ -1,8 +1,29 @@
-<div class="list">
-  <h3 class="list-title">{{ title }}</h3>
-  <div class="card-container">
-    <tr-card *ngFor="let card of cards" [title]="card.title"></tr-card>
-  </div>
-  <button class="add-card-button">+ Додати картку</button>
+@if (!isEditing) {
+  <h3 class="list-title"
+      (click)="isEditing=true">
+    {{ title }}
+  </h3>
+} @else {
+  <tr-title-input
+    [class]="'list-title-input'"
+    [id]="'title'"
+    [required]="true"
+    [minlength]="2"
+    [maxlength]="25"
+    [pattern]="'^(?!\\s*$)[0-9a-zA-Zа-яА-ЯіІїЇєЄ.,\\-_\'! ]+$'"
+    [(value)]="newTitle"
+    [name]="'title'"
+    (valueChange)="updateListTitle()"></tr-title-input>
+}
+
+<div class="card-container">
+  @for (card of cards; track card.id) {
+    <tr-card
+      [listId]="listId"
+      [title]="card.title"
+      (cardAdded)="updateList()"></tr-card>
+  }
+  <button (click)="removeList()">Remove list</button>
 </div>
+<button class="add-card-button">+ Додати картку</button>
 

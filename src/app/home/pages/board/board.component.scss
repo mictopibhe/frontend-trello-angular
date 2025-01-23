@@ -25,28 +25,6 @@
   color: inherit;
 }
 
-.board-title-input {
-  font-size: 2rem;
-  font-weight: bold;
-  border: 1px solid #ccc;
-  width: 100%;
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.board-title-input:focus {
-  border-color: #007bff; /* Стиль для фокусу */
-  outline: none; /* Забираємо стандартну обводку фокусу */
-}
-
-.board-title-input:invalid {
-  border: 2px solid #ba0000;
-}
-
-.alert {
-  color: #ba0000;
-}
-
 h1 {
   font-size: 2rem;
   font-weight: bold;

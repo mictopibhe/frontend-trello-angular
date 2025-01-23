@@ -10,11 +10,11 @@ import {Subject} from 'rxjs';
     NgIf,
     TitleCasePipe
   ],
-  templateUrl: './input-form.component.html',
-  styleUrl: './input-form.component.scss',
+  templateUrl: './modal-input.component.html',
+  styleUrl: './modal-input.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class InputFormComponent {
+export class ModalInputComponent {
   @Input() entityType: string = 'board';
   @Output() close = new EventEmitter<void>();
   @Output() inputData = new EventEmitter<string>();

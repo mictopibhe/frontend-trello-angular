@@ -1,0 +1,26 @@
+<input type="text"
+       [class]="class"
+       [id]="id"
+       [required]="required"
+       [minlength]="minlength"
+       [maxlength]="maxlength"
+       [pattern]="pattern"
+       [(ngModel)]="value"
+       [name]="name"
+       (keydown.enter)="onAction()"
+       (blur)="onAction()"
+       #input="ngModel"/>
+<!--можна ентером відправляти невалідні дані. Як пофіксити? перевіряти ще в методі?
+      чи для таких випадків тільки реактивні форми юзати?-->
+<div [hidden]="input.valid || input.pristine"
+     class="alert">
+  <div *ngIf="input.hasError('required')">
+    Title is required.
+  </div>
+  <div *ngIf="input.hasError('minlength')">
+    Title must be at least 2 characters long.
+  </div>
+  <div *ngIf="input.hasError('pattern')">
+    Title can only contain letters, numbers, spaces, and specific characters (., -_'!).
+  </div>
+</div>
