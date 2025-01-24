@@ -6,13 +6,16 @@ import {ListService} from '../../services/list.service';
 import {ActivatedRoute} from '@angular/router';
 import {TitleInputComponent} from '../title-input/title-input.component';
 import {FormsModule} from '@angular/forms';
+import {CardService} from '../../services/card.service';
+import {CardCreationFormComponent} from '../card-creation-form/card-creation-form.component';
 
 @Component({
   selector: 'tr-list',
   imports: [
     CardComponent,
     TitleInputComponent,
-    FormsModule
+    FormsModule,
+    CardCreationFormComponent
   ],
   templateUrl: './list.component.html',
   styleUrl: './list.component.scss',
@@ -20,6 +23,7 @@ import {FormsModule} from '@angular/forms';
 })
 export class ListComponent implements OnInit {
   constructor(private listService: ListService,
+              private cardService: CardService,
               private readonly route: ActivatedRoute) {
   }
 
@@ -31,7 +35,8 @@ export class ListComponent implements OnInit {
   @Output() listUpdated = new EventEmitter<void>();
 
   boardId: string | null = null;
-  isEditing: boolean = false;
+  isTitleEditing: boolean = false;
+  isCardCreationEnabled: boolean = false;
   newTitle: string = '';
 
   ngOnInit(): void {
@@ -50,16 +55,29 @@ export class ListComponent implements OnInit {
 
   updateListTitle() {
     if (this.boardId && (this.newTitle && this.newTitle !== this.title)) {
-      this.listService.updateListTitle(this.listId, this.boardId, this.title).subscribe(() => {
-        this.isEditing = false;
+      this.listService.updateListTitle(this.listId, this.boardId, this.newTitle).subscribe(() => {
+        this.isTitleEditing = false;
+        //todo: update don't work. I don't know why!
         this.listUpdated.emit();
       });
     } else {
-      this.isEditing = false;
+      this.isTitleEditing = false;
     }
   }
 
   updateList() {
     this.listUpdated.emit();
+  }
+
+  createNewCard(card: { title: string; description: string }) {
+    if (card.title && this.boardId) {
+      this.cardService.createCard(this.boardId, this.listId, card.title, card.description, this.cards.length)
+        .subscribe(() => {
+          this.updateList();
+        });
+      this.isCardCreationEnabled = false;
+    } else {
+      this.isCardCreationEnabled = false;
+    }
   }
 }

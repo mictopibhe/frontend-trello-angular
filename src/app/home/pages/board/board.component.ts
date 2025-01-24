@@ -1,5 +1,4 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {NgForOf, NgIf} from '@angular/common';
 import {ListComponent} from '../../components/list/list.component';
 import {BoardDetails} from '../../../core/interfaces/boardDetails.interface';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -12,17 +11,19 @@ import {TitleInputComponent} from '../../components/title-input/title-input.comp
 
 @Component({
   selector: 'tr-board',
+  // host: { '[style.background-image]': `"url(/assets/images/series-2-pika-wallpaper-2.png)"` },
   imports: [
     ListComponent,
     FormsModule,
     ModalInputComponent,
-    TitleInputComponent
+    TitleInputComponent,
   ],
   templateUrl: './board.component.html',
   styleUrl: './board.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BoardComponent implements OnInit {
+
   board!: BoardDetails;
   boardId?: string | null;
   currentTitle: string = '';
@@ -35,7 +36,8 @@ export class BoardComponent implements OnInit {
               private router: Router,
               private changeDetector: ChangeDetectorRef,
               private listService: ListService
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.route.data.subscribe(({board}) => this.board = board);

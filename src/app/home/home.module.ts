@@ -4,7 +4,6 @@ import {CommonModule} from '@angular/common';
 import {HomeRoutingModule} from './home-routing.module';
 import {BoardService} from './services/board.service';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HomeComponent} from './pages/home/home.component';
 
 
 @NgModule({
@@ -12,7 +11,8 @@ import {HomeComponent} from './pages/home/home.component';
   imports: [
     CommonModule,
     HomeRoutingModule,
-    FormsModule
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [BoardService],
 })

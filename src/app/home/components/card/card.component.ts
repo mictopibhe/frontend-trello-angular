@@ -11,6 +11,7 @@ import {CardService} from '../../services/card.service';
 export class CardComponent {
   @Input() title!: string;
   @Input() listId!: string;
+  @Input() position!: number;
 
   @Output() cardAdded = new EventEmitter<void>();
 

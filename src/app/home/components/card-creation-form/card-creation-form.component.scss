@@ -1,0 +1,57 @@
+.card-creation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0 auto;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+}
+
+.card-title-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  opacity: 0.5;
+}
+
+.alert-container {
+  color: #ba0000;
+}
+
+.alert {
+  margin-bottom: 3px;
+}
+
+.card-description-textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  opacity: 0.5;
+}
+
+.btn {
+  width: 100%;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 10px 10px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.create-card-btn:hover {
+  background-color: rgba(76, 121, 76, 0.8);
+  border: 2px solid rgba(76, 121, 76, 0.8);
+  color: white;
+}
+
+.cancel-card-btn:hover {
+  background-color: rgba(185, 0, 0, 0.8);
+  border: 2px solid rgba(185, 0, 0, 0.8);
+  color: white;
+}

@@ -1,8 +1,15 @@
-@if (!isEditing) {
-  <h3 class="list-title"
-      (click)="isEditing=true">
-    {{ title }}
-  </h3>
+<div class="list-header">
+@if (!isTitleEditing) {
+    <div class="list-title">
+      <h3 class="list-title-text">
+        {{ title }}
+      </h3>
+      <img class="list-title-icon"
+           src="black-edit-icon.svg"
+           alt="edit icon"
+           (click)="isTitleEditing=true">
+    </div>
+    <button class="btn remove-list-btn" (click)="removeList()"></button>
 } @else {
   <tr-title-input
     [class]="'list-title-input'"
@@ -15,15 +22,26 @@
     [name]="'title'"
     (valueChange)="updateListTitle()"></tr-title-input>
 }
+</div>
 
 <div class="card-container">
   @for (card of cards; track card.id) {
     <tr-card
       [listId]="listId"
       [title]="card.title"
+      [position]="card.position"
       (cardAdded)="updateList()"></tr-card>
   }
-  <button (click)="removeList()">Remove list</button>
 </div>
-<button class="add-card-button">+ Додати картку</button>
+@if (isCardCreationEnabled) {
+  <hr />
+  <tr-card-creation-form
+  (cancelCreation)="isCardCreationEnabled = false"
+  (cardCreated)="createNewCard($event)"
+  ></tr-card-creation-form>
+} @else {
+  <button class="btn creation-form-btn" (click)="isCardCreationEnabled = true">+ Додати картку</button>
+}
+
+
 
