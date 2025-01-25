@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {ListComponent} from '../../components/list/list.component';
 import {BoardDetails} from '../../../core/interfaces/boardDetails.interface';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {FormsModule} from '@angular/forms';
 import {BoardService} from '../../services/board.service';
 import {BoardDetailsService} from '../../services/board-details.service';
@@ -17,6 +17,7 @@ import {TitleInputComponent} from '../../components/title-input/title-input.comp
     FormsModule,
     ModalInputComponent,
     TitleInputComponent,
+    RouterLink,
   ],
   templateUrl: './board.component.html',
   styleUrl: './board.component.scss',
