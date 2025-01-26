@@ -1,5 +1,5 @@
 <div class="list-header">
-@if (!isTitleEditing) {
+  @if (!isTitleEditing) {
     <div class="list-title">
       <h3 class="list-title-text">
         {{ title }}
@@ -10,34 +10,39 @@
            (click)="isTitleEditing=true">
     </div>
     <button class="btn remove-list-btn" (click)="removeList()"></button>
-} @else {
-  <tr-title-input
-    [class]="'list-title-input'"
-    [id]="'title'"
-    [required]="true"
-    [minlength]="2"
-    [maxlength]="25"
-    [pattern]="'^(?!\\s*$)[0-9a-zA-Zа-яА-ЯіІїЇєЄ.,\\-_\'! ]+$'"
-    [(value)]="newTitle"
-    [name]="'title'"
-    (valueChange)="updateListTitle()"></tr-title-input>
-}
+  } @else {
+    <tr-title-input
+      [class]="'list-title-input'"
+      [id]="'title'"
+      [required]="true"
+      [minlength]="2"
+      [maxlength]="25"
+      [pattern]="'^(?!\\s*$)[0-9a-zA-Zа-яА-ЯіІїЇєЄ.,\\-_\'! ]+$'"
+      [(value)]="newTitle"
+      [name]="'title'"
+      (valueChange)="updateListTitle()"></tr-title-input>
+  }
 </div>
-
-<div class="card-container">
+<div class="drop-zone"
+     (dragover)="onDragOver($event)"
+     (dragleave)="onDragLeave($event)">
+  <div class="placeholder"></div>
   @for (card of cards; track card.id) {
     <tr-card
+      class="card"
       [listId]="listId"
       [title]="card.title"
       [position]="card.position"
+      draggable="true"
+      (dragstart)="onDragStart($event, card)"
       (cardAdded)="updateList()"></tr-card>
   }
 </div>
 @if (isCardCreationEnabled) {
-  <hr />
+  <hr/>
   <tr-card-creation-form
-  (cancelCreation)="isCardCreationEnabled = false"
-  (cardCreated)="createNewCard($event)"
+    (cancelCreation)="isCardCreationEnabled = false"
+    (cardCreated)="createNewCard($event)"
   ></tr-card-creation-form>
 } @else {
   <button class="btn creation-form-btn" (click)="isCardCreationEnabled = true">+ Додати картку</button>

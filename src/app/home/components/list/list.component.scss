@@ -68,14 +68,23 @@
   }
 }
 
-.card-container {
-  padding-bottom: 15px;
-}
-
 .creation-form-btn:hover {
   background-color: rgba(76, 121, 76, 0.8);
   border: 2px solid rgba(76, 121, 76, 0.8);
   color: white;
+}
+
+.card.dragging {
+  opacity: 0.2;
+  transform: scale(1.05);
+}
+
+.placeholder {
+  width: 100%;
+  height: 40px;
+  background: rgba(0, 0, 255, 0.5); /* Прозорий індикатор */
+  border: 2px dashed blue;
+  margin: 5px 0;
 }
 
 
