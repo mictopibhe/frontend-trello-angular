@@ -25,7 +25,9 @@
 </div>
 <div class="drop-zone"
      (dragover)="onDragOver($event)"
-     (dragleave)="onDragLeave($event)">
+     (dragenter)="onDragEnter($event)"
+     (dragleave)="onDragLeave($event)"
+     (drop)="onDrop($event)">
   <div class="placeholder"></div>
   @for (card of cards; track card.id) {
     <tr-card

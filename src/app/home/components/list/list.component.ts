@@ -1,14 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  EventEmitter,
-  Input,
-  OnInit,
-  Output, Renderer2
-} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, inject, Input, OnInit, Output, signal,} from '@angular/core';
 import {Card} from '../../../core/interfaces/card.interface';
-import {NgForOf} from '@angular/common';
 import {CardComponent} from '../card/card.component';
 import {ListService} from '../../services/list.service';
 import {ActivatedRoute} from '@angular/router';
@@ -16,6 +7,7 @@ import {TitleInputComponent} from '../title-input/title-input.component';
 import {FormsModule} from '@angular/forms';
 import {CardService} from '../../services/card.service';
 import {CardCreationFormComponent} from '../card-creation-form/card-creation-form.component';
+import {CardUpdate} from '../../../core/interfaces/cardUpdate.interface';
 
 @Component({
   selector: 'tr-list',
@@ -30,34 +22,37 @@ import {CardCreationFormComponent} from '../card-creation-form/card-creation-for
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ListComponent implements OnInit {
-  constructor(private listService: ListService,
-              private cardService: CardService,
-              private readonly route: ActivatedRoute,
-              private cdr: ChangeDetectorRef) {
-  }
+  listService = inject(ListService);
+  cardService = inject(CardService);
+  route = inject(ActivatedRoute);
 
-  @Input() listId!: string;
+  @Input() listId!: number;
   @Input() title!: string;
   @Input() cards!: Card[];
 
   @Output() listRemoved = new EventEmitter<void>();
   @Output() listUpdated = new EventEmitter<void>();
 
-  boardId: string | null = null;
+  boardId!: string;
   isTitleEditing: boolean = false;
   isCardCreationEnabled: boolean = false;
   newTitle: string = '';
 
-  placeholder!: HTMLDivElement;
-  draggedElement?: HTMLElement | null = null;
-
+  sourceList = signal<Card[]>([]);
+  sourceListId = signal<number | null>(null);
+  sourceCard = signal<Card | null>(null);
+  placeholder = signal<HTMLDivElement | null>(null);
+  draggedElement = signal<HTMLElement | null>(null);
 
   ngOnInit(): void {
-    this.boardId = this.route.snapshot.paramMap.get('id');
+    this.boardId = this.route.snapshot.paramMap.get('id')!;
     this.newTitle = this.title;
     this.cards.sort((a, b) => a.position - b.position);
-    this.placeholder = Array.from(document.getElementsByClassName('placeholder'))[0] as HTMLDivElement;
-    this.placeholder.parentNode?.removeChild(this.placeholder);
+    const placeholderElement = Array.from(document.getElementsByClassName('placeholder'))[0] as HTMLDivElement;
+    if (placeholderElement) {
+      placeholderElement.parentNode!.removeChild(placeholderElement);
+      this.placeholder.set(placeholderElement);
+    }
   }
 
   removeList() {
@@ -70,43 +65,81 @@ export class ListComponent implements OnInit {
   }
 
   updateListTitle() {
-    if (this.boardId && (this.newTitle && this.newTitle !== this.title)) {
+    if (this.isTitleChanged()) {
       this.listService.updateListTitle(this.listId, this.boardId, this.newTitle).subscribe(() => {
-        this.isTitleEditing = false;
         //todo: update don't work. I don't know why!
         this.listUpdated.emit();
       });
-    } else {
-      this.isTitleEditing = false;
     }
+    this.isTitleEditing = false;
+  }
+
+  isTitleChanged(): boolean {
+    return this.newTitle?.trim() !== this.title?.trim();
+  }
+
+  createNewCard(card: { title: string; description: string }) {
+    if (card.title) {
+      this.cardService.createCard(this.boardId, this.listId, card.title, card.description, this.cards.length)
+        .subscribe(() => {
+          this.updateList();
+        });
+    }
+    this.isCardCreationEnabled = false;
   }
 
   updateList() {
     this.listUpdated.emit();
   }
 
-  createNewCard(card: { title: string; description: string }) {
-    if (card.title && this.boardId) {
-      this.cardService.createCard(this.boardId, this.listId, card.title, card.description, this.cards.length)
-        .subscribe(() => {
-          this.updateList();
-        });
-      this.isCardCreationEnabled = false;
-    } else {
-      this.isCardCreationEnabled = false;
-    }
-  }
-
   onDragStart(event: DragEvent, card: Card) {
-    this.draggedElement = event.target as HTMLElement;
-    event.dataTransfer!.setData('application/json', JSON.stringify(card));
+    console.log(card);
+    this.sourceList.set(this.cards);
+    console.log(this.sourceCard());
+    this.sourceCard.set(card);
+    this.sourceListId.set(this.listId);
+    this.draggedElement.set(event.target as HTMLElement);
+
+    //todo: add styles for element
     //event.dataTransfer!.dropEffect = "copy"; //поки не зрозуміло, як працює (повинен змінюватись курсор але поки не змінюється)
     // const target = event.target as HTMLElement;
     // target.classList.add('dragging');
   }
 
+  onDragLeave(event: DragEvent) {
+    console.log(this.sourceCard())
+    this.sourceList.set(this.sourceList().filter((card) => card !== this.sourceCard()));
+    const draggedElement = this.draggedElement();
+    if (draggedElement) {
+      draggedElement.parentNode?.removeChild(draggedElement);
+    }
+
+    const list = event.currentTarget as HTMLElement;
+    const listRect = list.getBoundingClientRect();
+
+    if (this.isMouseLeaveDropZone(listRect, event.clientX, event.clientY)) {
+      const placeholder = this.placeholder()!;
+      this.placeholder()!.parentNode?.removeChild(this.placeholder()!);
+    }
+  }
+
+  isMouseLeaveDropZone(
+    listRect: DOMRect, mouseX: number, mouseY: number
+  ): boolean {
+    return (
+      mouseY < listRect.top || mouseY > listRect.bottom ||
+      mouseX < listRect.left || mouseX > listRect.right
+    );
+  }
 
   onDragOver(event: DragEvent) {
+    event.preventDefault();
+    const list = event.currentTarget as HTMLElement;
+    //todo: add visual effect for drop area
+    list.classList.add();
+  }
+
+  onDragEnter(event: DragEvent) {
     event.preventDefault();
     const list = event.currentTarget as HTMLElement;
 
@@ -114,33 +147,56 @@ export class ListComponent implements OnInit {
       (child) => !child.classList.contains('placeholder')
     );
 
-    const mouseY = event.clientY;
     let insertIndex = cardComponents.findIndex((card) => {
       const cardRect = card.getBoundingClientRect();
       const cardCenterY = cardRect.top + cardRect.height / 2;
-      return mouseY < cardCenterY;
+      return event.clientY < cardCenterY;
     });
 
     insertIndex = insertIndex === -1 ? cardComponents.length : insertIndex;
-    const targetCard = cardComponents[insertIndex] || null;
-    list.insertBefore(this.placeholder, targetCard);
+    list.insertBefore(this.placeholder()!, cardComponents[insertIndex]);
   }
 
-  onDragLeave(event: DragEvent) {
-    const list = event.target as HTMLElement;
-    const listRect = list.getBoundingClientRect();
-    const mouseX = event.clientX;
-    const mouseY = event.clientY;
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    const list = event.currentTarget as HTMLElement;
+    const dropPosition = Array.from(list.children).findIndex((el) => {
+      return el.classList.contains('placeholder');
+    });
+    console.log(dropPosition);
 
-    if (this.isMouseLeaveDropZone(listRect, mouseX, mouseY)) {
-      // якщо тягнути карту прямо в самий верх листа а потім на інший список - плейсхолдер лишається
-      // @ts-ignore
-      this.placeholder.parentNode.removeChild(this.placeholder);
+    if (dropPosition === -1) {
+      console.error('Placeholder not found');
+      return;
     }
-  }
+    this.placeholder()!.parentNode!.removeChild(this.placeholder()!);
 
-  isMouseLeaveDropZone(listRect: DOMRect, mouseX: number, mouseY: number) {
-    return (listRect.top < mouseY && listRect.bottom > mouseY) ||
-      (listRect.left > mouseX && listRect.right < mouseX);
+    console.log(this.sourceCard()!.id);
+    const droppedCard: CardUpdate = {
+      id: this.sourceCard()!.id,
+      position: dropPosition,
+      list_id: this.listId
+    };
+
+    const updatedSourceCardsList: CardUpdate[] = this.sourceList()
+      .filter((card) => card.position > dropPosition)
+      .map((card): CardUpdate => ({
+          id: card.id,
+          position: card.position - 1,
+          list_id: this.sourceListId()!
+        })
+      );
+    console.log(updatedSourceCardsList);
+    const updatedTargetCardsList: CardUpdate[] = this.cards
+      .filter((_, index) => index >= dropPosition)
+      .map((card): CardUpdate => ({
+          id: card.id,
+          position: card.position + 1,
+          list_id: this.listId
+        })
+      );
+    console.log(updatedTargetCardsList);
+    updatedTargetCardsList.splice(dropPosition, 0, droppedCard);
+    console.log([...updatedSourceCardsList, ...updatedTargetCardsList]);
   }
 }

@@ -13,7 +13,7 @@ export class CardService {
   constructor(private http: HttpClient) {}
 
   createCard(
-    boardId: string, listId: string,
+    boardId: string, listId: number,
     cardTitle: string, cardDescription: string,
     pos: number
   ): Observable<HttpResponse<object>> {

@@ -1,5 +1,5 @@
 export interface Board {
-  id: string;
+  id: number;
   title: string;
   custom: {backgroundColor: string};
 }

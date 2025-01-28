@@ -23,14 +23,14 @@ export class ListService {
     );
   }
 
-  removeList(listId: string, boardId: string): Observable<HttpResponse<object>> {
+  removeList(listId: number, boardId: string): Observable<HttpResponse<object>> {
     return this.http.delete<HttpResponse<object>>(
       `${this.baseUrl}/board/${boardId}/list/${listId}`,
       {headers: {'Authorization': 'Bearer 123'}}
     );
   }
 
-  updateListTitle(listId: string, boardId: string, newTitle: string): Observable<HttpResponse<object>> {
+  updateListTitle(listId: number, boardId: string, newTitle: string): Observable<HttpResponse<object>> {
     return this.http.put<HttpResponse<object>>(
       `${this.baseUrl}/board/${boardId}/list/${listId}`,
       {title: newTitle},
