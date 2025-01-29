@@ -33,7 +33,7 @@ export class ListComponent implements OnInit {
   @Output() listRemoved = new EventEmitter<void>();
   @Output() listUpdated = new EventEmitter<void>();
 
-  boardId!: string;
+  boardId = signal<number>(0);
   isTitleEditing: boolean = false;
   isCardCreationEnabled: boolean = false;
   newTitle: string = '';
@@ -45,19 +45,17 @@ export class ListComponent implements OnInit {
   draggedElement = signal<HTMLElement | null>(null);
 
   ngOnInit(): void {
-    this.boardId = this.route.snapshot.paramMap.get('id')!;
+    this.boardId.set(Number(this.route.snapshot.paramMap.get('id')));
     this.newTitle = this.title;
     this.cards.sort((a, b) => a.position - b.position);
     const placeholderElement = Array.from(document.getElementsByClassName('placeholder'))[0] as HTMLDivElement;
-    if (placeholderElement) {
-      placeholderElement.parentNode!.removeChild(placeholderElement);
-      this.placeholder.set(placeholderElement);
-    }
+    placeholderElement.parentNode?.removeChild(placeholderElement);
+    this.placeholder.set(placeholderElement);
   }
 
   removeList() {
-    if (this.boardId) {
-      this.listService.removeList(this.listId, this.boardId).subscribe(() => {
+    if (this.boardId()) {
+      this.listService.removeList(this.listId, this.boardId()).subscribe(() => {
         //todo: update don't work. I don't know why!
         this.listRemoved.emit();
       });
@@ -66,7 +64,7 @@ export class ListComponent implements OnInit {
 
   updateListTitle() {
     if (this.isTitleChanged()) {
-      this.listService.updateListTitle(this.listId, this.boardId, this.newTitle).subscribe(() => {
+      this.listService.updateListTitle(this.listId, this.boardId(), this.newTitle).subscribe(() => {
         //todo: update don't work. I don't know why!
         this.listUpdated.emit();
       });
@@ -80,7 +78,7 @@ export class ListComponent implements OnInit {
 
   createNewCard(card: { title: string; description: string }) {
     if (card.title) {
-      this.cardService.createCard(this.boardId, this.listId, card.title, card.description, this.cards.length)
+      this.cardService.createCard(this.boardId(), this.listId, card.title, card.description, this.cards.length)
         .subscribe(() => {
           this.updateList();
         });
@@ -95,10 +93,11 @@ export class ListComponent implements OnInit {
   onDragStart(event: DragEvent, card: Card) {
     console.log(card);
     this.sourceList.set(this.cards);
-    console.log(this.sourceCard());
     this.sourceCard.set(card);
     this.sourceListId.set(this.listId);
     this.draggedElement.set(event.target as HTMLElement);
+
+    event.dataTransfer?.setData('text/plain', JSON.stringify(card));
 
     //todo: add styles for element
     //event.dataTransfer!.dropEffect = "copy"; //поки не зрозуміло, як працює (повинен змінюватись курсор але поки не змінюється)
@@ -107,7 +106,6 @@ export class ListComponent implements OnInit {
   }
 
   onDragLeave(event: DragEvent) {
-    console.log(this.sourceCard())
     this.sourceList.set(this.sourceList().filter((card) => card !== this.sourceCard()));
     const draggedElement = this.draggedElement();
     if (draggedElement) {
@@ -159,10 +157,15 @@ export class ListComponent implements OnInit {
 
   onDrop(event: DragEvent) {
     event.preventDefault();
+    const  rawData = event.dataTransfer?.getData("text/plain");
+    console.log(rawData);
+    if (rawData) {
+      this.sourceCard.set(JSON.parse(rawData));
+    }
     const list = event.currentTarget as HTMLElement;
     const dropPosition = Array.from(list.children).findIndex((el) => {
       return el.classList.contains('placeholder');
-    });
+    }) + 1;
     console.log(dropPosition);
 
     if (dropPosition === -1) {
@@ -195,8 +198,13 @@ export class ListComponent implements OnInit {
           list_id: this.listId
         })
       );
-    console.log(updatedTargetCardsList);
     updatedTargetCardsList.splice(dropPosition, 0, droppedCard);
+    this.cardService.updateCards(
+      this.boardId(),
+      [...updatedSourceCardsList, ...updatedTargetCardsList]
+    ).subscribe( () => {
+      this.listUpdated.emit();
+    });
     console.log([...updatedSourceCardsList, ...updatedTargetCardsList]);
   }
 }
