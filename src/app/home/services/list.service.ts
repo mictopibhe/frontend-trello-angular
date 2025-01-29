@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {Injectable, WritableSignal} from '@angular/core';
 import {HttpClient, HttpResponse} from '@angular/common/http';
 import {environment} from '../../../environments/environment.development';
 import {Observable} from 'rxjs';
@@ -23,14 +23,14 @@ export class ListService {
     );
   }
 
-  removeList(listId: number, boardId: string): Observable<HttpResponse<object>> {
+  removeList(listId: number, boardId: number): Observable<HttpResponse<object>> {
     return this.http.delete<HttpResponse<object>>(
       `${this.baseUrl}/board/${boardId}/list/${listId}`,
       {headers: {'Authorization': 'Bearer 123'}}
     );
   }
 
-  updateListTitle(listId: number, boardId: string, newTitle: string): Observable<HttpResponse<object>> {
+  updateListTitle(listId: number, boardId: number, newTitle: string): Observable<HttpResponse<object>> {
     return this.http.put<HttpResponse<object>>(
       `${this.baseUrl}/board/${boardId}/list/${listId}`,
       {title: newTitle},

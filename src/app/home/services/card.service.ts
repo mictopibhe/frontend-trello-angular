@@ -1,8 +1,9 @@
-import {Injectable, OnInit} from '@angular/core';
+import {Injectable, OnInit, WritableSignal} from '@angular/core';
 import {HttpClient, HttpResponse} from '@angular/common/http';
 import {environment} from '../../../environments/environment.development';
 import {Observable} from 'rxjs';
 import {ActivatedRoute} from '@angular/router';
+import {CardUpdate} from '../../core/interfaces/cardUpdate.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,7 @@ export class CardService {
   constructor(private http: HttpClient) {}
 
   createCard(
-    boardId: string, listId: number,
+    boardId: number, listId: number,
     cardTitle: string, cardDescription: string,
     pos: number
   ): Observable<HttpResponse<object>> {
@@ -25,6 +26,14 @@ export class CardService {
         position: pos,
         description: cardDescription
       },
+      {headers: {'Authorization': 'Bearer 123'}}
+    );
+  }
+
+  updateCards(boardId: number, cardUpdates: CardUpdate[]): Observable<HttpResponse<object>> {
+    return this.http.put<HttpResponse<object>>(
+      `${this.baseUrl}/${boardId}/card`,
+      cardUpdates,
       {headers: {'Authorization': 'Bearer 123'}}
     );
   }
