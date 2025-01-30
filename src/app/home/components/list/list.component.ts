@@ -8,6 +8,7 @@ import {FormsModule} from '@angular/forms';
 import {CardService} from '../../services/card.service';
 import {CardCreationFormComponent} from '../card-creation-form/card-creation-form.component';
 import {CardUpdate} from '../../../core/interfaces/cardUpdate.interface';
+import {catchError, EMPTY, tap} from 'rxjs';
 
 @Component({
   selector: 'tr-list',
@@ -171,28 +172,18 @@ export class ListComponent implements OnInit {
     event.preventDefault();
 
     const rawData = event.dataTransfer?.getData("text/plain");
-    console.log("Raw drop data:", rawData); // Додано для дебагу
-
-    if (!rawData) {
-      console.warn("No data received in drag event.");
-      return;
-    }
+    if (!rawData) return console.warn("No data received in drag event.");
 
     try {
-      const parsedData = JSON.parse(rawData);
-      console.log("Parsed drop data:", parsedData); // Переконайтесь, що структура правильна
+      const {sourceCard, sourceListId} = JSON.parse(rawData);
+      if (!sourceCard || !sourceListId) return console.error("Invalid data structure:", {sourceCard, sourceListId});
 
-      if (!parsedData?.sourceCard || !parsedData?.sourceListId) {
-        console.error("Invalid data structure:", parsedData);
-        return;
-      }
-
-      this.sourceCard.set(parsedData.sourceCard);
-      this.sourceListId.set(parsedData.sourceListId);
+      this.sourceCard.set(sourceCard);
+      this.sourceListId.set(sourceListId);
     } catch (e) {
-      console.error("Error parsing JSON:", e);
-      return;
+      return console.error("Error parsing JSON:", e);
     }
+
     let targetList = this.cards;
     if (this.sourceListId() === this.listId) {
       targetList = this.sourceList();
@@ -205,11 +196,10 @@ export class ListComponent implements OnInit {
     }) + 1;
 
     if (dropPosition === 0) {
-      console.error('Placeholder not found');
-      return;
+      return console.error('Placeholder not found');
     }
 
-    this.placeholder()!.parentNode!.removeChild(this.placeholder()!);
+    this.placeholder()?.parentNode?.removeChild(this.placeholder()!);
 
     const droppedCard: CardUpdate = {
       id: this.sourceCard()!.id,
@@ -217,36 +207,28 @@ export class ListComponent implements OnInit {
       list_id: this.listId
     };
 
-    const updatedSourceCardsList: CardUpdate[] = this.sourceList()
+    const updatedSourceCardsList: CardUpdate[] = this.sourceList().map((card): CardUpdate => ({
+      id: card.id,
+      position: card.position,
+      list_id: this.sourceListId()!
+    }));
+
+    const updatedTargetCardsList: CardUpdate[] = targetList
+      .filter((card, index) => index < dropPosition)
       .map((card): CardUpdate => ({
-          id: card.id,
-          position: card.position,
-          list_id: this.sourceListId()!
-        })
-      );
+        id: card.id,
+        position: card.position + 1,
+        list_id: this.listId
+      })).concat(droppedCard);
 
-    console.log(targetList);
-    const updatedTargetCardsList: CardUpdate[] = [
-      ...targetList
-        .filter((card, index) => index < dropPosition)
-        .map((card): CardUpdate => ({
-          id: card.id,
-          position: card.position + 1,
-          list_id: this.listId
-        })),
-      droppedCard];
+    const mergedArray = [...updatedSourceCardsList, ...updatedTargetCardsList];
 
-    const mergedArray = [
-      ...updatedSourceCardsList,
-      ...updatedTargetCardsList
-    ];
-    console.log(updatedTargetCardsList);
-    console.log(mergedArray);
-    this.cardService.updateCards(
-      this.boardId(),
-      mergedArray
-    ).subscribe(() => {
-      this.listUpdated.emit();
-    });
+    this.cardService.updateCards(this.boardId(), mergedArray)
+      .pipe(
+        tap(() => this.listUpdated.emit()),
+        catchError((e) => {
+          console.error("Failed to update cards:", e);
+          return EMPTY;
+        })).subscribe();
   }
 }
