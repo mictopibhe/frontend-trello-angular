@@ -77,7 +77,7 @@ export class BoardComponent implements OnInit {
   createList(listTitle: string) {
     this.closeModal();
     if (this.boardId) {
-      this.listService.createList(this.boardId, listTitle, this.board.lists.length - 1)
+      this.listService.createList(this.boardId, listTitle, this.board.lists.length + 1)
         .subscribe(() => {
           if (this.boardId) {
             this.fetchBoard(this.boardId);

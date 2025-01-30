@@ -78,7 +78,7 @@ export class ListComponent implements OnInit {
 
   createNewCard(card: { title: string; description: string }) {
     if (card.title) {
-      this.cardService.createCard(this.boardId(), this.listId, card.title, card.description, this.cards.length)
+      this.cardService.createCard(this.boardId(), this.listId, card.title, card.description, this.cards.length + 1)
         .subscribe(() => {
           this.updateList();
         });
@@ -91,13 +91,12 @@ export class ListComponent implements OnInit {
   }
 
   onDragStart(event: DragEvent, card: Card) {
-    console.log(card);
     this.sourceList.set(this.cards);
     this.sourceCard.set(card);
     this.sourceListId.set(this.listId);
     this.draggedElement.set(event.target as HTMLElement);
 
-    event.dataTransfer?.setData('text/plain', JSON.stringify(card));
+    event.dataTransfer?.setData('text/plain', JSON.stringify({sourceCard: card, sourceListId: this.sourceListId()}));
 
     //todo: add styles for element
     //event.dataTransfer!.dropEffect = "copy"; //поки не зрозуміло, як працює (повинен змінюватись курсор але поки не змінюється)
@@ -106,7 +105,20 @@ export class ListComponent implements OnInit {
   }
 
   onDragLeave(event: DragEvent) {
-    this.sourceList.set(this.sourceList().filter((card) => card !== this.sourceCard()));
+    const dragCardIndex = this.sourceList().findIndex((card) => card === this.sourceCard());
+    console.log(dragCardIndex);
+    if (dragCardIndex !== -1) {
+      this.sourceList.set(
+        this.sourceList()
+          .filter((card) => card !== this.sourceCard())
+          .map((card, index) => ({
+            ...card,
+            position: index >= dragCardIndex ? card.position - 1 : card.position
+          }))
+      );
+      console.log(this.sourceList());
+    }
+
     const draggedElement = this.draggedElement();
     if (draggedElement) {
       draggedElement.parentNode?.removeChild(draggedElement);
@@ -157,24 +169,48 @@ export class ListComponent implements OnInit {
 
   onDrop(event: DragEvent) {
     event.preventDefault();
-    const  rawData = event.dataTransfer?.getData("text/plain");
-    console.log(rawData);
-    if (rawData) {
-      this.sourceCard.set(JSON.parse(rawData));
+
+    const rawData = event.dataTransfer?.getData("text/plain");
+    console.log("Raw drop data:", rawData); // Додано для дебагу
+
+    if (!rawData) {
+      console.warn("No data received in drag event.");
+      return;
     }
+
+    try {
+      const parsedData = JSON.parse(rawData);
+      console.log("Parsed drop data:", parsedData); // Переконайтесь, що структура правильна
+
+      if (!parsedData?.sourceCard || !parsedData?.sourceListId) {
+        console.error("Invalid data structure:", parsedData);
+        return;
+      }
+
+      this.sourceCard.set(parsedData.sourceCard);
+      this.sourceListId.set(parsedData.sourceListId);
+    } catch (e) {
+      console.error("Error parsing JSON:", e);
+      return;
+    }
+    let targetList = this.cards;
+    if (this.sourceListId() === this.listId) {
+      targetList = this.sourceList();
+      this.sourceList.set([]);
+    }
+
     const list = event.currentTarget as HTMLElement;
     const dropPosition = Array.from(list.children).findIndex((el) => {
       return el.classList.contains('placeholder');
     }) + 1;
-    console.log(dropPosition);
 
-    if (dropPosition === -1) {
+    if (dropPosition === 0) {
       console.error('Placeholder not found');
       return;
     }
+
     this.placeholder()!.parentNode!.removeChild(this.placeholder()!);
 
-    console.log(this.sourceCard()!.id);
     const droppedCard: CardUpdate = {
       id: this.sourceCard()!.id,
       position: dropPosition,
@@ -182,29 +218,35 @@ export class ListComponent implements OnInit {
     };
 
     const updatedSourceCardsList: CardUpdate[] = this.sourceList()
-      .filter((card) => card.position > dropPosition)
       .map((card): CardUpdate => ({
           id: card.id,
-          position: card.position - 1,
+          position: card.position,
           list_id: this.sourceListId()!
         })
       );
-    console.log(updatedSourceCardsList);
-    const updatedTargetCardsList: CardUpdate[] = this.cards
-      .filter((_, index) => index >= dropPosition)
-      .map((card): CardUpdate => ({
+
+    console.log(targetList);
+    const updatedTargetCardsList: CardUpdate[] = [
+      ...targetList
+        .filter((card, index) => index < dropPosition)
+        .map((card): CardUpdate => ({
           id: card.id,
           position: card.position + 1,
           list_id: this.listId
-        })
-      );
-    updatedTargetCardsList.splice(dropPosition, 0, droppedCard);
+        })),
+      droppedCard];
+
+    const mergedArray = [
+      ...updatedSourceCardsList,
+      ...updatedTargetCardsList
+    ];
+    console.log(updatedTargetCardsList);
+    console.log(mergedArray);
     this.cardService.updateCards(
       this.boardId(),
-      [...updatedSourceCardsList, ...updatedTargetCardsList]
-    ).subscribe( () => {
+      mergedArray
+    ).subscribe(() => {
       this.listUpdated.emit();
     });
-    console.log([...updatedSourceCardsList, ...updatedTargetCardsList]);
   }
 }
