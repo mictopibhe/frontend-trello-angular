@@ -8,6 +8,7 @@ import {BoardDetailsService} from '../../services/board-details.service';
 import {ModalInputComponent} from '../../components/modal-input/modal-input.component';
 import {ListService} from '../../services/list.service';
 import {TitleInputComponent} from '../../components/title-input/title-input.component';
+import {catchError, EMPTY, tap} from 'rxjs';
 
 @Component({
   selector: 'tr-board',
@@ -54,24 +55,26 @@ export class BoardComponent implements OnInit {
     }
   }
 
-  updateBoard() {
+  updateBoardTitle() {
     if (this.boardId && (this.currentTitle && this.currentTitle !== this.board.title)) {
       this.boardService.updateBoard(this.currentTitle, this.boardId).subscribe(() => {
-        if (this.boardId) {
-          this.fetchBoard(this.boardId);
-        }
+          this.fetchBoard();
       });
-    } else {
-      this.isEditing = false;
     }
+    this.isEditing = false;
   }
 
-  fetchBoard(boardId: string) {
-    this.boardDetailsService.getBoardDetails(boardId).subscribe((bord) => {
-      this.board = bord;
-      this.changeDetector.detectChanges();
-      this.isEditing = false;
-    });
+  fetchBoard() {
+    this.boardDetailsService.getBoardDetails(this.boardId!).pipe(
+      tap((board) => {
+        this.board = board;
+        this.changeDetector.detectChanges();
+      }),
+      catchError((e) => {
+        console.error("Failed to fetch board:", e);
+        return EMPTY;
+      })
+    ).subscribe();
   }
 
   createList(listTitle: string) {
@@ -79,9 +82,7 @@ export class BoardComponent implements OnInit {
     if (this.boardId) {
       this.listService.createList(this.boardId, listTitle, this.board.lists.length + 1)
         .subscribe(() => {
-          if (this.boardId) {
-            this.fetchBoard(this.boardId);
-          }
+            this.fetchBoard();
         });
     }
   }
