@@ -1,0 +1,20 @@
+@if (isModalOpen()) {
+  <div class="overlay"></div>
+}
+<h1>Мої дошки</h1>
+<div class="boards-container">
+  @for (board of boards(); track board.id) {
+    <a [routerLink]="['/board', board.id]">
+      <div class="board">
+        <h3 class="board-title">{{ board.title }}</h3>
+      </div>
+    </a>
+  }
+  <button class="board" (click)="isModalOpen.set(true)">+ Створити дошку</button>
+</div>
+
+@if (isModalOpen()) {
+    <app-modal-input
+        (close)="isModalOpen.set(false)"
+        (inputData)="createBoard($event)"></app-modal-input>
+}

@@ -1,0 +1,50 @@
+<form class="card-creation-form" [formGroup]="cardForm" (ngSubmit)="onSubmit()">
+  <label for="card-title" class="card-title-label">Card title:</label>
+  <input class="card-title-input"
+         id="card-title"
+         type="text"
+         formControlName="cardTitle">
+  @if (cardForm.get('cardTitle')?.invalid) {
+    <div class="alert-container">
+      @if (cardForm.get('cardTitle')?.hasError('required')) {
+        <div class="alert">
+          Card title is required.
+        </div>
+      }
+      @if (cardForm.get('cardTitle')?.hasError('minlength')) {
+        <div class="alert">
+          Card title must be at least 2 characters long.
+        </div>
+      }
+      @if (cardForm.get('cardTitle')?.hasError('maxlength')) {
+        <div class="alert">
+          Card title must be smaller than 25 characters.
+        </div>
+      }
+      @if (cardForm.get('cardTitle')?.hasError('pattern')) {
+        <div class="alert">
+          Card title can only contain letters, numbers, spaces, and specific characters (., -_'!).
+        </div>
+      }
+    </div>
+  }
+  <label for="card-description" class="card-description-label">Card description:</label>
+  <textarea
+    class="card-description-textarea"
+    id="card-description"
+    formControlName="cardDescription"
+    rows="3">
+    </textarea>
+  <button
+    class="btn create-card-btn"
+    type="submit"
+    [disabled]="!cardForm.valid">
+    Create card
+  </button>
+  <button
+    class="btn cancel-card-btn"
+    type="button"
+    (click)="onCancel()">
+    Cancel
+  </button>
+</form>

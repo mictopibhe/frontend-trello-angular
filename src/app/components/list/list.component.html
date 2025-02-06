@@ -1,0 +1,53 @@
+<div class="list-header">
+  @if (!isTitleEditing()) {
+    <div class="list-title">
+      <h3 class="list-title-text">
+        {{ list.title }}
+      </h3>
+      <img class="list-title-icon"
+           src="black-edit-icon.svg"
+           alt="edit icon"
+           (click)="isTitleEditing.set(true)">
+    </div>
+    <button class="btn remove-list-btn" (click)="removeList()"></button>
+  } @else {
+    <app-title-input
+      [class]="'list-title-input'"
+      [id]="'title'"
+      [required]="true"
+      [minlength]="2"
+      [maxlength]="25"
+      [pattern]="'^(?!\\s*$)[0-9a-zA-Zа-яА-ЯіІїЇєЄ.,\\-_\'! ]+$'"
+      [(value)]="currentTitle"
+      [name]="'title'"
+      (valueChange)="updateListTitle($event)"></app-title-input>
+  }
+</div>
+<div class="drop-zone" #dropZone
+     (dragleave)="onDragLeave($event)"
+     (dragover)="onDragOver($event)"
+     (dragenter)="onDragEnter($event)"
+     (drop)="onDrop($event)">
+  <div class="placeholder" #placeholder></div>
+  @for (card of list.cards; track card.id) {
+    @if (draggedCard()?.id === card.id) {
+      <div class="card-slot"></div>
+    } @else {
+      <app-card
+        class="card"
+        draggable="true"
+        [card]="card"
+        (dragstart)="onDragStart($event, card)"
+      ></app-card>
+    }
+  }
+</div>
+@if (isCardCreationEnabled()) {
+  <hr/>
+  <app-card-creation-form
+    (cancelCreation)="isCardCreationEnabled.set(false)"
+    (cardCreated)="addCard($event)"
+  ></app-card-creation-form>
+} @else {
+  <button class="btn creation-form-btn" (click)="isCardCreationEnabled.set(true)">+ Додати картку</button>
+}

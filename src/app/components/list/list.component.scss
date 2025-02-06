@@ -1,0 +1,107 @@
+:host {
+  max-width: 100%;
+  font-family: "Unbounded", serif;
+  font-optical-sizing: auto;
+  font-weight: normal;
+  font-style: normal;
+  word-wrap: break-word;
+}
+
+.list-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  position: relative;
+}
+
+.btn {
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 10px 10px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.list-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.list-title-text {
+  font-weight: bold;
+}
+
+.list-title-icon {
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+.remove-list-btn {
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+
+  &:before,
+  &:after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    right: 12px;
+    height: 30px;
+    background-color: white;
+    border: 1px solid white;
+    z-index: 0;
+  }
+
+  &:before {
+    rotate: 45deg;
+  }
+
+  &:after {
+    rotate: 135deg;
+  }
+}
+
+.card-slot {
+  display: block;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 50px;
+  margin: 10px 0;
+  border: 2px solid black;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.placeholder {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 50px;
+  margin: 10px 0;
+  border: 2px solid black;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.drop-zone {
+  min-height: 15px;
+}
+
+.creation-form-btn:hover {
+  background-color: rgba(76, 121, 76, 0.8);
+  border: 2px solid rgba(76, 121, 76, 0.8);
+  color: white;
+}
+
+
+
+
