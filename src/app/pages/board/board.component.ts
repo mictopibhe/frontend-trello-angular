@@ -34,7 +34,7 @@ export class BoardComponent implements OnInit{
 
   ngOnInit(): void {
     document.documentElement.style.setProperty(
-      '--background-image', 'url("/assets/board-bg.png")'
+      '--background-image', 'url("/frontend-trello-angular/assets/board-bg.png")'
     );
     const resolvedBoard: BoardDetails = this.route.snapshot.data['board'];
     this.board.set(resolvedBoard);

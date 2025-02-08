@@ -7,7 +7,7 @@ import {ModalInputComponent} from '../../components/modal-input/modal-input.comp
 
 @Component({
   selector: 'app-home',
-  host: {'[style.background-image]': `"url('/assets/home-bg.jpg')"`},
+  host: {'[style.background-image]': `"url('/frontend-trello-angular/assets/home-bg.jpg')"`},
   imports: [
     RouterLink,
     ModalInputComponent

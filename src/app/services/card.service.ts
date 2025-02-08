@@ -3,6 +3,7 @@ import {catchError, EMPTY, Observable} from 'rxjs';
 import {HttpClient, HttpResponse} from '@angular/common/http';
 import {environment} from '../../environments/environment';
 import {CardsList} from '../core/interfaces/cardList.interface';
+import {Card} from '../core/interfaces/card.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -30,17 +31,18 @@ export class CardService {
     );
   }
 
-  updateCards(boardId: number, cardList: CardsList): Observable<HttpResponse<object>> {
-    const dataToUpdate = cardList.cards.map((card) => {
-      return {
-        id: card.id,
-        position: card.position,
-        list_id: cardList.id
-      }
-    });
+  updateCards(boardId: number, listId: number, cards: Card[]): Observable<HttpResponse<object>> {
+    const payload: { id: number, position: number, list_id: number }[] = cards
+      .map((card) => {
+        return {
+          id: card.id,
+          position: card.position,
+          list_id: listId
+        }
+      });
     return this.http.put<HttpResponse<object>>(
       `${this.baseUrl}/board/${boardId}/card`,
-      dataToUpdate,
+      payload,
       {headers: {'Authorization': 'Bearer 123'}}
     );
   }
