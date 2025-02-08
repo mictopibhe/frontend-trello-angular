@@ -72,6 +72,10 @@ export class ListComponent implements OnInit {
   }
 
   onDragLeave(event: DragEvent) {
+    if (this.isMouseLeaveDropZone(event)) {
+      this.dropPosition.set(null);
+      this.draggedCard.set(null);
+    }
     if (!this.draggedCard()) return;
     if (this.list.cards.some((card) => card.id === this.draggedCard()!.id)) {
       this.list.cards = this.list.cards
@@ -83,10 +87,6 @@ export class ListComponent implements OnInit {
           return card;
         });
       this.dragNDropService.targetList.set(this.list);
-    }
-    if (this.isMouseLeaveDropZone(event)) {
-      this.dropPosition.set(null);
-      this.draggedCard.set(null);
     }
   }
 
