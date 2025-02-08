@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, EventEmitter, inject, Input, OnInit, Output, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, inject, input, OnInit, Output, signal} from '@angular/core';
 import {ListService} from '../../services/list.service';
 import {ActivatedRoute} from '@angular/router';
 import {CardsList} from '../../core/interfaces/cardList.interface';
@@ -7,6 +7,7 @@ import {CardCreationFormComponent} from '../card-creation-form/card-creation-for
 import {CardService} from '../../services/card.service';
 import {Card} from '../../core/interfaces/card.interface';
 import {DragDropService} from '../../services/drag-drop.service';
+import {switchMap} from 'rxjs';
 
 @Component({
   selector: 'app-list',
@@ -24,7 +25,7 @@ export class ListComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private dragNDropService = inject(DragDropService);
 
-  @Input() list!: CardsList;
+  list = input.required<CardsList>();
   @Output() listChanged = new EventEmitter<void>();
 
   currentTitle: string = '';
@@ -38,25 +39,25 @@ export class ListComponent implements OnInit {
   ngOnInit(): void {
     document.addEventListener('drop', this.onDropOutside.bind(this));
     document.addEventListener('dragover', (event) => event.preventDefault());
-    this.currentTitle = this.list.title;
-    this.list.cards = this.list.cards.sort((a, b) => a.position - b.position);
+    this.currentTitle = this.list().title;
+    this.list().cards = this.list().cards.sort((a, b) => a.position - b.position);
   }
 
   updateListTitle(title: string) {
-    this.listService.updateListTitle(title, this.boardId(), this.list.id).subscribe(() => {
+    this.listService.updateListTitle(title, this.boardId(), this.list().id).subscribe(() => {
       this.listChanged.emit();
       this.isTitleEditing.set(false);
     });
   }
 
   removeList() {
-    this.listService.removeList(this.boardId(), this.list.id).subscribe(() => {
+    this.listService.removeList(this.boardId(), this.list().id).subscribe(() => {
       this.listChanged.emit();
     });
   }
 
   addCard(newCard: { title: string, description: string }) {
-    this.cardService.createCard(newCard, this.boardId(), this.list.id, this.list.cards.length + 1)
+    this.cardService.createCard(newCard, this.boardId(), this.list().id, this.list().cards.length + 1)
       .subscribe(() => {
           this.listChanged.emit();
           this.isCardCreationEnabled.set(false);
@@ -65,7 +66,7 @@ export class ListComponent implements OnInit {
   }
 
   onDragStart(event: DragEvent, card: Card) {
-    this.dragNDropService.targetList.set(this.list);
+    this.dragNDropService.targetList.set(this.list());
     this.dragNDropService.isDroppedInZone.set(false);
     this.draggedCard.set(card);
     event.dataTransfer?.setData('application/json', JSON.stringify(card));
@@ -77,8 +78,8 @@ export class ListComponent implements OnInit {
       this.draggedCard.set(null);
     }
     if (!this.draggedCard()) return;
-    if (this.list.cards.some((card) => card.id === this.draggedCard()!.id)) {
-      this.list.cards = this.list.cards
+    if (this.list().cards.some((card) => card.id === this.draggedCard()!.id)) {
+      this.list().cards = this.list().cards
         .filter((card) => card.id !== this.draggedCard()!.id)
         .map((card) => {
           if (card.position > this.draggedCard()!.position) {
@@ -86,7 +87,7 @@ export class ListComponent implements OnInit {
           }
           return card;
         });
-      this.dragNDropService.targetList.set(this.list);
+      this.dragNDropService.targetList.set(this.list());
     }
   }
 
@@ -125,10 +126,10 @@ export class ListComponent implements OnInit {
     if (!rawData) return;
 
     const card: Card = JSON.parse(rawData);
-    const updatedList = (this.list.id) ? this.list : this.dragNDropService.targetList()!;
-    if (this.list.id) {
-      card.position = (this.dropPosition() === -1 && this.list.cards.length !== 0) ?
-        this.list.cards.length + 1 : this.dropPosition()! + 1;
+    const updatedList = (this.list().id) ? this.list() : this.dragNDropService.targetList()!;
+    if (this.list().id) {
+      card.position = (this.dropPosition() === -1 && this.list().cards.length !== 0) ?
+        this.list().cards.length + 1 : this.dropPosition()! + 1;
     }
 
     updatedList.cards.forEach((el, index) => {
@@ -145,24 +146,18 @@ export class ListComponent implements OnInit {
       this.boardId(),
       this.dragNDropService.targetList()!.id,
       this.dragNDropService.targetList()!.cards
+    ).pipe(
+      switchMap(() => {
+        return this.cardService.updateCards(this.boardId(), updatedList.id, updatedList.cards);
+      })
     ).subscribe({
-        next: () => {
-          this.cardService.updateCards(this.boardId(), updatedList.id, updatedList.cards).subscribe(
-            {
-              next: () => {
-                this.listChanged.emit();
-              },
-              error: (err) => {
-                console.error('Error while updating cards:', err);
-              }
-            }
-          )
-        },
-        error: (err) => {
-          console.error('Error while updating cards:', err);
-        }
+      next: () => {
+        this.listChanged.emit();
+      },
+      error: (err) => {
+        console.error('Error while updating cards:', err);
       }
-    );
+    });
   }
 
   onDropOutside(event: DragEvent) {
