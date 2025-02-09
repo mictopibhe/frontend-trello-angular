@@ -1,11 +1,11 @@
 import {ChangeDetectionStrategy, Component, EventEmitter, inject, input, OnInit, Output, signal} from '@angular/core';
 import {ListService} from '../../services/list.service';
 import {ActivatedRoute} from '@angular/router';
-import {CardsList} from '../../core/interfaces/cardList.interface';
+import {ICardsList} from '../../core/interfaces/cardList.interface';
 import {TitleInputComponent} from '../title-input/title-input.component';
 import {CardCreationFormComponent} from '../card-creation-form/card-creation-form.component';
 import {CardService} from '../../services/card.service';
-import {Card} from '../../core/interfaces/card.interface';
+import {ICard} from '../../core/interfaces/card.interface';
 import {DragDropService} from '../../services/drag-drop.service';
 import {switchMap} from 'rxjs';
 
@@ -25,7 +25,7 @@ export class ListComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private dragNDropService = inject(DragDropService);
 
-  list = input.required<CardsList>();
+  list = input.required<ICardsList>();
   @Output() listChanged = new EventEmitter<void>();
 
   currentTitle: string = '';
@@ -33,7 +33,7 @@ export class ListComponent implements OnInit {
   isCardCreationEnabled = signal(false);
 
   boardId = signal<number>(Number(this.route.snapshot.params['id']));
-  draggedCard = signal<Card | null>(null);
+  draggedCard = signal<ICard | null>(null);
   dropPosition = signal<number | null>(null);
 
   ngOnInit(): void {
@@ -65,7 +65,7 @@ export class ListComponent implements OnInit {
       );
   }
 
-  onDragStart(event: DragEvent, card: Card) {
+  onDragStart(event: DragEvent, card: ICard) {
     this.dragNDropService.targetList.set(this.list());
     this.dragNDropService.isDroppedInZone.set(false);
     this.draggedCard.set(card);
@@ -125,7 +125,7 @@ export class ListComponent implements OnInit {
     const rawData = event.dataTransfer?.getData('application/json');
     if (!rawData) return;
 
-    const card: Card = JSON.parse(rawData);
+    const card: ICard = JSON.parse(rawData);
     const updatedList = (this.list().id) ? this.list() : this.dragNDropService.targetList()!;
     if (this.list().id) {
       card.position = (this.dropPosition() === -1 && this.list().cards.length !== 0) ?

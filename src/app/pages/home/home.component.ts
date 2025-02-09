@@ -1,5 +1,5 @@
 import {Component, inject, OnInit, signal} from '@angular/core';
-import {Board} from '../../core/interfaces/board.interface';
+import {IBoard} from '../../core/interfaces/board.interface';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {BoardService} from '../../services/board.service';
 import {switchMap} from 'rxjs';
@@ -19,7 +19,7 @@ export class HomeComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private boardService = inject(BoardService);
 
-  boards = signal<Board[]>([]);
+  boards = signal<IBoard[]>([]);
   isModalOpen = signal<boolean>(false);
 
   ngOnInit(): void {

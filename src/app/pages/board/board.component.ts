@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, Component, inject, OnInit, signal} from '@angular/core';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {BoardService} from '../../services/board.service';
-import {BoardDetails} from '../../core/interfaces/boardDetails.interface';
+import {IBoardDetails} from '../../core/interfaces/boardDetails.interface';
 import {ModalInputComponent} from '../../components/modal-input/modal-input.component';
 import {TitleInputComponent} from '../../components/title-input/title-input.component';
 import {ListService} from '../../services/list.service';
@@ -25,7 +25,7 @@ export class BoardComponent implements OnInit{
   private boardService = inject(BoardService);
   private listService = inject(ListService);
 
-  board = signal<BoardDetails | null>(null);
+  board = signal<IBoardDetails | null>(null);
   boardId = signal<number>(Number(this.route.snapshot.params['id']));
   currentTitle = '';
 
@@ -36,7 +36,7 @@ export class BoardComponent implements OnInit{
     document.documentElement.style.setProperty(
       '--background-image', 'url("/frontend-trello-angular/assets/board-bg.png")'
     );
-    const resolvedBoard: BoardDetails = this.route.snapshot.data['board'];
+    const resolvedBoard: IBoardDetails = this.route.snapshot.data['board'];
     this.board.set(resolvedBoard);
     this.currentTitle = this.board()!.title;
   }

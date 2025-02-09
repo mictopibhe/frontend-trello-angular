@@ -2,8 +2,8 @@ import {inject, Injectable} from '@angular/core';
 import {catchError, EMPTY, Observable} from 'rxjs';
 import {HttpClient, HttpResponse} from '@angular/common/http';
 import {environment} from '../../environments/environment';
-import {CardsList} from '../core/interfaces/cardList.interface';
-import {Card} from '../core/interfaces/card.interface';
+import {ICardsList} from '../core/interfaces/cardList.interface';
+import {ICard} from '../core/interfaces/card.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -31,7 +31,7 @@ export class CardService {
     );
   }
 
-  updateCards(boardId: number, listId: number, cards: Card[]): Observable<HttpResponse<object>> {
+  updateCards(boardId: number, listId: number, cards: ICard[]): Observable<HttpResponse<object>> {
     const payload: { id: number, position: number, list_id: number }[] = cards
       .map((card) => {
         return {

@@ -1,9 +1,9 @@
 import {inject, Injectable} from '@angular/core';
 import {HttpClient, HttpResponse} from '@angular/common/http';
 import {environment} from '../../environments/environment';
-import {Board} from '../core/interfaces/board.interface';
+import {IBoard} from '../core/interfaces/board.interface';
 import {catchError, map, Observable, of, throwError} from 'rxjs';
-import {BoardDetails} from '../core/interfaces/boardDetails.interface';
+import {IBoardDetails} from '../core/interfaces/boardDetails.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -13,8 +13,8 @@ export class BoardService {
 
   baseUrl = `${environment.baseURL}/board`;
 
-  fetchBoards(): Observable<Board[]> {
-    return this.http.get<{ boards: Board[] }>(
+  fetchBoards(): Observable<IBoard[]> {
+    return this.http.get<{ boards: IBoard[] }>(
       this.baseUrl, {headers: {'Authorization': 'Bearer 123'}}
     ).pipe(
       map(response => response.boards),
@@ -25,8 +25,8 @@ export class BoardService {
     );
   }
 
-  fetchBoard(id: number): Observable<BoardDetails> {
-    return this.http.get<BoardDetails>(
+  fetchBoard(id: number): Observable<IBoardDetails> {
+    return this.http.get<IBoardDetails>(
       `${this.baseUrl}/${id}`, {headers: {'Authorization': 'Bearer 123'}}
     ).pipe(
       catchError((error) => {

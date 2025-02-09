@@ -1,9 +1,9 @@
-import {User} from './user.interface';
-import {CardsList} from './cardList.interface';
+import {IUser} from './user.interface';
+import {ICardsList} from './cardList.interface';
 
-export interface BoardDetails {
+export interface IBoardDetails {
   title: string;
   custom: any;
-  users: User[];
-  lists: CardsList[];
+  users: IUser[];
+  lists: ICardsList[];
 }
