@@ -1,1 +1,94 @@
-<p>register works!</p>
+<div class="form-container">
+  <div class="form-header">
+    <h2>Registration</h2>
+  </div>
+  <form [formGroup]="form" class="form-content" (ngSubmit)="onSubmit()">
+    <fieldset>
+      <fieldset class="form-group">
+        <label for="email">Email: </label>
+        <input
+          type="text"
+          class="form-control"
+          id="email"
+          formControlName="email"
+        />
+        @if (email?.touched && email?.errors) {
+          <div class="validation-alert">
+            @if ((email?.errors ?? {})['required']) {
+              <small>Email is required!</small>
+            }
+            @if ((email?.errors ?? {})['email']) {
+              <small>Invalid email format!</small>
+            }
+          </div>
+        }
+      </fieldset>
+      <fieldset class="form-group">
+        <label for="password">Password: </label>
+        <input
+          type="password"
+          class="form-control"
+          id="password"
+          formControlName="password"
+        />
+        <div class="strength-bar">
+          @for (level of [1, 2, 3, 4]; track level; let i = $index) {
+            <div class="strength-level" [ngClass]="getComplexityClass(i)"></div>
+          }
+        </div>
+        @if (password?.touched && password?.errors) {
+          <div class="validation-alert">
+            @if ((password?.errors ?? {})['required']) {
+              <small>Password is required field.</small>
+            }
+            @if (!(password?.errors ?? {})['maxLength']) {
+              <small>Password must be at least 8 characters long.</small>
+            }
+            @if (!(password?.errors ?? {})['hasUpperCase']) {
+              <small>Password must contain at least one uppercase letter.</small>
+            }
+            @if (!(password?.errors ?? {})['hasLowerCase']) {
+              <small>Password must contain at least one lowercase letter.</small>
+            }
+            @if (!(password?.errors ?? {})['hasNumeric']) {
+              <small>Password must contain at least one number.</small>
+            }
+          </div>
+        }
+      </fieldset>
+
+      <fieldset class="form-group">
+        <label for="confirmPassword">Confirm password: </label>
+        <input
+          type="password"
+          class="form-control"
+          id="confirmPassword"
+          formControlName="confirmPassword"
+        />
+          @if (confirmPassword?.touched && confirmPassword?.errors) {
+            <div class="validation-alert">
+              @if ((confirmPassword?.errors ?? {})['required']) {
+                <small>Password confirmation required</small>
+              }
+            </div>
+          }
+      </fieldset>
+      @if (form.hasError('passwordMatch')) {
+        <div class="validation-alert">
+        <small>Password do not match</small>
+        </div>
+      }
+      <div class="btn-container">
+        <button class="btn" type="submit" [disabled]="!form.valid">
+          Sign up
+        </button>
+      </div>
+
+    </fieldset>
+  </form>
+  <div class="form-footer">
+    <div class="form-footer_text">
+      <p>Already have an account?</p> <a href="#">Sign in</a>
+    </div>
+  </div>
+</div>

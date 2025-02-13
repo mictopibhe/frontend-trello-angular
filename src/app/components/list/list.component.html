@@ -2,7 +2,7 @@
   @if (!isTitleEditing()) {
     <div class="list-title">
       <h3 class="list-title-text">
-        {{ list.title }}
+        {{ list().title }}
       </h3>
       <img class="list-title-icon"
            src="black-edit-icon.svg"
@@ -28,7 +28,7 @@
     (dragover)="onDragOver($event)"
     (dragenter)="onDragEnter($event)"
     (drop)="onDrop($event)">
-  @for (card of list.cards; track card.id; let i = $index) {
+  @for (card of list().cards; track card.id; let i = $index) {
     @if (dropPosition() === i) {
       <li class="placeholder"></li>
     }
