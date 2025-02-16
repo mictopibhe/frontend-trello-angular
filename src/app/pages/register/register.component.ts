@@ -1,14 +1,19 @@
 import {Component, inject, OnInit, signal} from '@angular/core';
-import {NgClass} from '@angular/common';
+import {AsyncPipe, NgClass} from '@angular/common';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {CustomValidationService} from '../../services/custom-validation.service';
+import {select, Store} from '@ngrx/store';
+import {RegisterActions} from '../../store/actions/register.actions';
+import {Observable} from 'rxjs';
+import {isSubmittingSelector} from '../../store/selectors';
 
 @Component({
   selector: 'app-register',
   imports: [
     NgClass,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    AsyncPipe
   ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
@@ -16,12 +21,15 @@ import {CustomValidationService} from '../../services/custom-validation.service'
 export class RegisterComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
   private validationService = inject(CustomValidationService);
+  private store = inject(Store);
 
   form!: FormGroup;
+  isSubmitting$!: Observable<boolean>;
   passwordComplexity = signal<number>(0);
 
   ngOnInit(): void {
     this.initializeForm();
+    this.initializeValues();
     this.trackPasswordChanges();
   }
 
@@ -51,6 +59,10 @@ export class RegisterComponent implements OnInit {
     );
   }
 
+  initializeValues() {
+    this.isSubmitting$ = this.store.pipe(select(isSubmittingSelector));
+  }
+
   trackPasswordChanges(): void {
     this.form.get('password')?.valueChanges.subscribe((newPassword) => {
       this.passwordComplexity.set(this.getPasswordComplexity(newPassword));
@@ -58,7 +70,14 @@ export class RegisterComponent implements OnInit {
   }
 
   onSubmit(): void {
-    console.log('submit', this.form.value, this.form.valid)
+    this.store.dispatch(
+      RegisterActions.register({
+        request: {
+          email: this.form.get('email')!.value,
+          password: this.form.get('password')!.value
+        }
+      })
+    );
   }
 
   getComplexityClass(index: number): string {

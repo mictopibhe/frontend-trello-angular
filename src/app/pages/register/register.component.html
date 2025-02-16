@@ -79,7 +79,7 @@
         </div>
       }
       <div class="btn-container">
-        <button class="btn" type="submit" [disabled]="!form.valid">
+        <button class="btn" type="submit" [disabled]="!form.valid || (isSubmitting$ | async)">
           Sign up
         </button>
       </div>
